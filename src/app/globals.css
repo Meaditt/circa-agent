@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+:root {
+  --circa-gold: #c8a96e;
+  --circa-dark: #1a1a2e;
+  --circa-darker: #0f0f1a;
+  --circa-light: #f5f0e8;
+}
