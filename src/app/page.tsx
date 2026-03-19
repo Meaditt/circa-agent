@@ -3,11 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "@/lib/types";
 
+interface DownloadInfo {
+  url: string;
+  fileName: string;
+}
+
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [download, setDownload] = useState<DownloadInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,7 +40,6 @@ export default function Home() {
       const data = await res.json();
       const assistantContent: string = data.content;
 
-      // Check for PPTX generation trigger
       const pptxMatch = assistantContent.match(
         /\|\|\|GENERATE_PPTX\|\|\|(.+?)\|\|\|END_PPTX\|\|\|/s
       );
@@ -72,19 +77,9 @@ export default function Home() {
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Circa_${customerName.replace(/\s+/g, "_")}_Presentation.pptx`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const fileName = `Circa_${customerName.replace(/\s+/g, "_")}_Presentation.pptx`;
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Your presentation has been downloaded! Let me know if you need any changes or want to explore other properties.",
-        },
-      ]);
+      setDownload({ url, fileName });
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -93,6 +88,23 @@ export default function Home() {
     } finally {
       setGenerating(false);
     }
+  }
+
+  function handleDownloadClick() {
+    if (!download) return;
+    const a = document.createElement("a");
+    a.href = download.url;
+    a.download = download.fileName;
+    a.click();
+    URL.revokeObjectURL(download.url);
+    setDownload(null);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "Got it! Let me know if you need any changes or want to explore other properties.",
+      },
+    ]);
   }
 
   return (
@@ -167,6 +179,22 @@ export default function Home() {
             <div className="bg-[#1e1e3a] rounded-2xl px-4 py-3 text-[var(--circa-gold)] text-sm">
               Generating your presentation...
             </div>
+          </div>
+        )}
+
+        {download && (
+          <div className="flex justify-start">
+            <button
+              onClick={handleDownloadClick}
+              className="flex items-center gap-3 bg-[var(--circa-gold)] text-[var(--circa-dark)] font-semibold px-6 py-3 rounded-2xl hover:brightness-110 transition-all cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Click here to download your presentation
+            </button>
           </div>
         )}
 
