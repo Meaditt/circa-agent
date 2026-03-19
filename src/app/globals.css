@@ -1,8 +1,198 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
 :root {
   --circa-gold: #c8a96e;
-  --circa-dark: #1a1a2e;
-  --circa-darker: #0f0f1a;
-  --circa-light: #f5f0e8;
+  --circa-gold-light: #dbc292;
+  --circa-gold-dim: #9a8255;
+  --circa-dark: #131320;
+  --circa-darker: #0a0a14;
+  --circa-surface: #181830;
+  --circa-surface-hover: #1f1f3d;
+  --circa-border: rgba(200, 169, 110, 0.12);
+  --circa-border-active: rgba(200, 169, 110, 0.3);
+  --circa-text: #e8e4dc;
+  --circa-text-muted: #8a8698;
+  --circa-text-dim: #5c586a;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--circa-gold-dim) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--circa-gold-dim);
+  border-radius: 4px;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--circa-darker);
+  color: var(--circa-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Ambient glow behind chat */
+.ambient-glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 169, 110, 0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Message animations */
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-dot {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-enter {
+  animation: messageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-enter {
+  animation: fadeIn 1s ease forwards;
+}
+
+.hero-title {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.hero-subtitle {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.hero-divider {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+.hero-description {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.hero-chips {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both;
+}
+
+.typing-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Download button shimmer */
+.download-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--circa-gold) 0%,
+    var(--circa-gold-light) 40%,
+    var(--circa-gold) 60%,
+    var(--circa-gold) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Input glow on focus */
+.input-glow:focus {
+  box-shadow: 0 0 0 1px var(--circa-gold-dim), 0 0 20px rgba(200, 169, 110, 0.08);
+}
+
+/* Suggestion chip hover */
+.chip-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chip-hover:hover {
+  border-color: var(--circa-gold);
+  color: var(--circa-gold);
+  background: rgba(200, 169, 110, 0.06);
+  transform: translateY(-1px);
+}
+
+/* Header line accent */
+.header-line {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--circa-border-active) 20%,
+    var(--circa-gold-dim) 50%,
+    var(--circa-border-active) 80%,
+    transparent 100%
+  );
 }

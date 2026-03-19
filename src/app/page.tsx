@@ -18,7 +18,7 @@ export default function Home() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, download]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -107,36 +107,89 @@ export default function Home() {
     ]);
   }
 
+  const suggestions = [
+    "Show me beachfront properties",
+    "What's available under $600K?",
+    "I want a house with a pool",
+    "Properties in Playa Venao",
+  ];
+
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
+    <div className="relative z-10 flex flex-col h-screen max-w-3xl mx-auto">
       {/* Header */}
-      <header className="flex items-center gap-4 px-6 py-4 border-b border-[#2a2a4a]">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--circa-gold)]">CIRCA</h1>
-          <p className="text-sm text-gray-400">Panama Property Agent</p>
+      <header className="px-8 pt-6 pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Logo mark */}
+            <div className="w-10 h-10 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center">
+              <span
+                className="text-lg font-semibold text-[var(--circa-gold)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                C
+              </span>
+            </div>
+            <div>
+              <h1
+                className="text-xl tracking-[0.2em] font-light text-[var(--circa-gold)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                CIRCA
+              </h1>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-[var(--circa-text-dim)]">
+                Panama Real Estate
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80" />
+            <span className="text-[11px] text-[var(--circa-text-dim)] tracking-wide">Online</span>
+          </div>
         </div>
+        <div className="header-line mt-4" />
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-4 opacity-60">
-            <div className="text-5xl font-bold text-[var(--circa-gold)]">CIRCA</div>
-            <p className="text-gray-400 max-w-md">
-              Welcome! I'm your Circa Panama property agent. Tell me what you're looking for
-              - budget, location, property type - and I'll find the perfect match for you.
+          <div className="flex flex-col items-center justify-center h-full text-center hero-enter">
+            {/* Hero */}
+            <div className="hero-title">
+              <h2
+                className="text-6xl font-light text-[var(--circa-gold)] tracking-[0.15em]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                CIRCA
+              </h2>
+            </div>
+            <p
+              className="hero-subtitle text-sm tracking-[0.4em] uppercase text-[var(--circa-text-dim)] mt-2"
+            >
+              Property Concierge
             </p>
-            <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {[
-                "Show me beachfront properties",
-                "What's available under $600K?",
-                "I want a house with a pool",
-                "Properties in Playa Venao",
-              ].map((suggestion) => (
+
+            {/* Divider */}
+            <div className="hero-divider flex items-center gap-4 mt-8 mb-6">
+              <div className="w-12 h-px bg-[var(--circa-border-active)]" />
+              <div className="w-1.5 h-1.5 rotate-45 border border-[var(--circa-gold-dim)]" />
+              <div className="w-12 h-px bg-[var(--circa-border-active)]" />
+            </div>
+
+            <p
+              className="hero-description text-[var(--circa-text-muted)] max-w-sm leading-relaxed text-[15px]"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Welcome. Tell me what you're looking for and I'll find your
+              perfect property in Panama.
+            </p>
+
+            {/* Suggestion chips */}
+            <div className="hero-chips flex flex-wrap gap-2.5 justify-center mt-8 max-w-lg">
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => setInput(suggestion)}
-                  className="px-3 py-1.5 text-sm rounded-full border border-[#2a2a4a] text-gray-400 hover:text-[var(--circa-gold)] hover:border-[var(--circa-gold)] transition-colors cursor-pointer"
+                  className="chip-hover px-4 py-2 text-[13px] rounded-full border border-[var(--circa-border)] text-[var(--circa-text-dim)] cursor-pointer bg-transparent"
                 >
                   {suggestion}
                 </button>
@@ -148,52 +201,129 @@ export default function Home() {
         {messages.map((message, i) => (
           <div
             key={i}
-            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex message-enter ${
+              message.role === "user" ? "justify-end" : "justify-start"
+            }`}
+            style={{ animationDelay: `${(i % 3) * 0.05}s` }}
           >
+            {message.role === "assistant" && (
+              <div className="flex-shrink-0 w-7 h-7 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center mr-3 mt-0.5">
+                <span
+                  className="text-xs text-[var(--circa-gold)]"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  C
+                </span>
+              </div>
+            )}
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[75%] px-5 py-3.5 ${
                 message.role === "user"
-                  ? "bg-[var(--circa-gold)] text-[var(--circa-dark)]"
-                  : "bg-[#1e1e3a] text-gray-200"
+                  ? "bg-[var(--circa-gold)] text-[var(--circa-dark)] rounded-2xl rounded-br-md"
+                  : "bg-[var(--circa-surface)] text-[var(--circa-text)] rounded-2xl rounded-bl-md border border-[var(--circa-border)]"
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+              <p
+                className="whitespace-pre-wrap text-[14px] leading-[1.7]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {message.content}
+              </p>
             </div>
           </div>
         ))}
 
+        {/* Typing indicator */}
         {loading && (
-          <div className="flex justify-start">
-            <div className="bg-[#1e1e3a] rounded-2xl px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full bg-[var(--circa-gold)] animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-[var(--circa-gold)] animate-bounce [animation-delay:0.1s]" />
-                <span className="w-2 h-2 rounded-full bg-[var(--circa-gold)] animate-bounce [animation-delay:0.2s]" />
+          <div className="flex justify-start message-enter">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center mr-3 mt-0.5">
+              <span
+                className="text-xs text-[var(--circa-gold)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                C
+              </span>
+            </div>
+            <div className="bg-[var(--circa-surface)] rounded-2xl rounded-bl-md border border-[var(--circa-border)] px-5 py-4">
+              <div className="flex gap-1.5">
+                <span className="typing-dot w-1.5 h-1.5 rounded-full bg-[var(--circa-gold)]" />
+                <span className="typing-dot w-1.5 h-1.5 rounded-full bg-[var(--circa-gold)]" />
+                <span className="typing-dot w-1.5 h-1.5 rounded-full bg-[var(--circa-gold)]" />
               </div>
             </div>
           </div>
         )}
 
+        {/* Generating state */}
         {generating && (
-          <div className="flex justify-start">
-            <div className="bg-[#1e1e3a] rounded-2xl px-4 py-3 text-[var(--circa-gold)] text-sm">
-              Generating your presentation...
+          <div className="flex justify-start message-enter">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center mr-3 mt-0.5">
+              <span
+                className="text-xs text-[var(--circa-gold)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                C
+              </span>
+            </div>
+            <div className="bg-[var(--circa-surface)] rounded-2xl rounded-bl-md border border-[var(--circa-border)] px-5 py-3.5">
+              <div className="flex items-center gap-3">
+                <svg
+                  className="animate-spin w-4 h-4 text-[var(--circa-gold)]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span className="text-[13px] text-[var(--circa-text-muted)]">
+                  Preparing your presentation...
+                </span>
+              </div>
             </div>
           </div>
         )}
 
+        {/* Download button */}
         {download && (
-          <div className="flex justify-start">
+          <div className="flex justify-start message-enter">
+            <div className="flex-shrink-0 w-7 h-7 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center mr-3 mt-0.5">
+              <span
+                className="text-xs text-[var(--circa-gold)]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                C
+              </span>
+            </div>
             <button
               onClick={handleDownloadClick}
-              className="flex items-center gap-3 bg-[var(--circa-gold)] text-[var(--circa-dark)] font-semibold px-6 py-3 rounded-2xl hover:brightness-110 transition-all cursor-pointer"
+              className="download-shimmer group flex items-center gap-4 text-[var(--circa-dark)] font-medium px-6 py-4 rounded-2xl rounded-bl-md hover:brightness-110 transition-all cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Click here to download your presentation
+              <div className="w-10 h-10 rounded-full bg-[var(--circa-dark)]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <span className="block text-[14px] font-semibold">
+                  Download Presentation
+                </span>
+                <span className="block text-[11px] opacity-70 mt-0.5">
+                  {download.fileName}
+                </span>
+              </div>
             </button>
           </div>
         )}
@@ -201,26 +331,49 @@ export default function Home() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="px-6 py-4 border-t border-[#2a2a4a]">
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about properties in Panama..."
-            className="flex-1 bg-[#1e1e3a] rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[var(--circa-gold)] transition-all"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="bg-[var(--circa-gold)] text-[var(--circa-dark)] font-semibold px-6 py-3 rounded-xl hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
-          >
-            Send
-          </button>
-        </div>
-      </form>
+      {/* Input area */}
+      <div className="px-8 pb-6 pt-2">
+        <div className="header-line mb-4" />
+        <form onSubmit={handleSubmit}>
+          <div className="flex gap-3 items-center">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Tell me what you're looking for..."
+                className="input-glow w-full bg-[var(--circa-surface)] rounded-xl px-5 py-3.5 text-[var(--circa-text)] placeholder-[var(--circa-text-dim)] outline-none border border-[var(--circa-border)] focus:border-[var(--circa-gold-dim)] transition-all text-[14px]"
+                style={{ fontFamily: "var(--font-body)" }}
+                disabled={loading}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="group bg-[var(--circa-gold)] text-[var(--circa-dark)] w-12 h-12 rounded-xl flex items-center justify-center hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+              >
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            </button>
+          </div>
+        </form>
+        <p className="text-center text-[10px] text-[var(--circa-text-dim)] mt-3 tracking-wide">
+          Powered by Circa Panama
+        </p>
+      </div>
     </div>
   );
 }
