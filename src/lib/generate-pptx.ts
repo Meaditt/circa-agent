@@ -1,6 +1,19 @@
 import PptxGenJS from "pptxgenjs";
 import { Property } from "./types";
 
+async function fetchImageAsBase64(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { redirect: "follow" });
+    if (!res.ok) return null;
+    const buffer = await res.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+    return `data:${contentType};base64,${base64}`;
+  } catch {
+    return null;
+  }
+}
+
 export async function generatePresentation(
   properties: Property[],
   customerName: string
@@ -10,6 +23,17 @@ export async function generatePresentation(
   pptx.layout = "LAYOUT_WIDE";
   pptx.author = "Circa Panama";
   pptx.subject = `Property Presentation for ${customerName}`;
+
+  // Pre-fetch all images
+  const imageMap = new Map<string, string>();
+  await Promise.all(
+    properties.map(async (p) => {
+      if (p.imageUrl) {
+        const data = await fetchImageAsBase64(p.imageUrl);
+        if (data) imageMap.set(p.name, data);
+      }
+    })
+  );
 
   // -- Title Slide --
   const titleSlide = pptx.addSlide();
@@ -87,7 +111,6 @@ export async function generatePresentation(
     }
   );
 
-  // Table header
   const tableRows: PptxGenJS.TableRow[] = [
     [
       { text: "Property", options: { bold: true, color: "C8A96E", fill: { color: "1A1A2E" } } },
@@ -122,48 +145,53 @@ export async function generatePresentation(
     const slide = pptx.addSlide();
     slide.background = { color: "0F0F1A" };
 
+    const imageData = imageMap.get(property.name);
+    const hasImage = !!imageData;
+
+    // Property image - right side
+    if (hasImage) {
+      slide.addImage({
+        data: imageData,
+        x: 6.2,
+        y: 0.3,
+        w: 6.5,
+        h: 4.2,
+        rounding: true,
+      });
+    }
+
     // Property name
     slide.addText(property.name, {
       x: 0.5,
       y: 0.3,
-      w: "60%",
+      w: hasImage ? 5.5 : "60%",
       fontSize: 32,
       fontFace: "Arial",
       color: "C8A96E",
       bold: true,
     });
 
-    // Location badge
-    slide.addText(property.location, {
+    // Location + category
+    slide.addText(`${property.location}  |  ${property.category}`, {
       x: 0.5,
       y: 1.2,
-      w: 3,
+      w: hasImage ? 5.5 : "60%",
       fontSize: 14,
       fontFace: "Arial",
-      color: "FFFFFF",
-    });
-
-    // Category badge
-    slide.addText(property.category, {
-      x: 3.5,
-      y: 1.2,
-      w: 2,
-      fontSize: 14,
-      fontFace: "Arial",
-      color: "C8A96E",
+      color: "AAAAAA",
     });
 
     // Details grid
     const details: Array<[string, string]> = [];
     if (property.price) details.push(["Price", `$${property.price}`]);
-    if (property.lotSize) details.push(["Lot Size", `${property.lotSize} m²`]);
-    if (property.constructionSize) details.push(["Built Area", `${property.constructionSize} m²`]);
+    if (property.lotSize) details.push(["Lot Size", `${property.lotSize} m\u00B2`]);
+    if (property.constructionSize) details.push(["Built Area", `${property.constructionSize} m\u00B2`]);
     if (property.bedrooms) details.push(["Bedrooms", property.bedrooms]);
     if (property.bathrooms) details.push(["Bathrooms", property.bathrooms]);
     if (property.parking) details.push(["Parking", property.parking]);
     if (property.status) details.push(["Status", property.status]);
 
-    let yPos = 2.0;
+    let yPos = 1.9;
     for (const [label, value] of details) {
       slide.addText(label, {
         x: 0.5,
@@ -185,11 +213,12 @@ export async function generatePresentation(
       yPos += 0.45;
     }
 
-    // Amenities
+    // Amenities - below details on left side
     if (property.amenities) {
+      yPos += 0.2;
       slide.addText("Amenities", {
-        x: 6.5,
-        y: 2.0,
+        x: 0.5,
+        y: yPos,
         w: 5,
         fontSize: 14,
         fontFace: "Arial",
@@ -197,22 +226,22 @@ export async function generatePresentation(
         bold: true,
       });
 
+      yPos += 0.5;
       const amenityList = property.amenities.split(",").map((a) => a.trim());
-      let amenityY = 2.6;
       for (const amenity of amenityList) {
         slide.addText(`- ${amenity}`, {
-          x: 6.5,
-          y: amenityY,
+          x: 0.5,
+          y: yPos,
           w: 5,
           fontSize: 12,
           fontFace: "Arial",
           color: "CCCCCC",
         });
-        amenityY += 0.35;
+        yPos += 0.35;
       }
     }
 
-    // Notes
+    // Notes at bottom
     if (property.notes) {
       slide.addText(property.notes, {
         x: 0.5,

@@ -16,6 +16,7 @@ export interface Property {
   status: string;
   legalDocs: boolean;
   notes: string;
+  imageUrl: string;
 }
 
 export interface ChatMessage {

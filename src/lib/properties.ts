@@ -2,6 +2,7 @@ import { Property } from "./types";
 
 // Hardcoded from CIRCA-PROPERTY LISTING Google Sheet
 // Spreadsheet ID: 17nryG-WPTeSxC1n2XiPuRZ1h2CByXUQPlttul35P6Ck
+// Images are placeholder illustrations until Drive integration is ready
 export const PROPERTIES: Property[] = [
   {
     name: "Casa Valley",
@@ -21,6 +22,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Ready in 3 months",
+    imageUrl: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop",
   },
   {
     name: "Villa Brisa",
@@ -40,6 +42,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Ready in 6 months",
+    imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=500&fit=crop",
   },
   {
     name: "Duplex Villa",
@@ -59,6 +62,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Ready in 3 months",
+    imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=500&fit=crop",
   },
   {
     name: "Villa Marina 402",
@@ -78,6 +82,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Completely furnished",
+    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=500&fit=crop",
   },
   {
     name: "Casa Ceviche",
@@ -97,6 +102,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Completely furnished",
+    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop",
   },
   {
     name: "Blue B21",
@@ -116,6 +122,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Furnished",
+    imageUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=500&fit=crop",
   },
   {
     name: "Villa Umutu",
@@ -135,6 +142,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Furnished",
+    imageUrl: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop",
   },
   {
     name: "Surf Lodge Residence",
@@ -154,6 +162,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "Pre-sale investors",
+    imageUrl: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&h=500&fit=crop",
   },
   {
     name: "Blue Venao Duplex 47B",
@@ -173,6 +182,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "",
+    imageUrl: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=500&fit=crop",
   },
   {
     name: "Hermitage El Ciruelo",
@@ -192,6 +202,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "",
+    imageUrl: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&h=500&fit=crop",
   },
   {
     name: "Shahak Mountain",
@@ -211,6 +222,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "",
+    imageUrl: "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&h=500&fit=crop",
   },
   {
     name: "Solaris Moledet",
@@ -230,6 +242,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "",
+    imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&h=500&fit=crop",
   },
   {
     name: "Villa Oro",
@@ -249,6 +262,7 @@ export const PROPERTIES: Property[] = [
     status: "Available",
     legalDocs: false,
     notes: "",
+    imageUrl: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=800&h=500&fit=crop",
   },
 ];
 
