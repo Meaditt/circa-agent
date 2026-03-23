@@ -1,3 +1,20 @@
+export interface UnitType {
+  name: string;
+  bedrooms: number;
+  bathrooms: number;
+  indoorSqm: number;
+  outdoorSqm: number;
+  priceFrom?: number;
+  priceTo?: number;
+}
+
+export interface RentalProjection {
+  unitType: string;
+  occupancyRate: string;
+  nightlyRate: number;
+  monthlyRent: number;
+}
+
 export interface Property {
   name: string;
   location: string;
@@ -17,6 +34,17 @@ export interface Property {
   legalDocs: boolean;
   notes: string;
   imageUrl: string;
+  // Extended fields for projects/developments
+  totalUnits?: number;
+  landSize?: string;
+  unitTypes?: UnitType[];
+  rentalProjections?: RentalProjection[];
+  roiEstimate?: string;
+  marketPricePerSqm?: string;
+  entryPricePerSqm?: string;
+  ecoFeatures?: string[];
+  communityFeatures?: string[];
+  description?: string;
 }
 
 export interface ChatMessage {

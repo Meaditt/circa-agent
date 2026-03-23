@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Circa Panama - Property Agent",
-  description: "AI-powered property presentation agent for Circa Panama",
+  title: "Circa Panama - Presentation Builder",
+  description: "Build professional property presentations for Circa Panama clients",
 };
 
 export default function RootLayout({

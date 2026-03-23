@@ -1,41 +1,62 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import Groq from "groq-sdk";
+import { fetchPropertiesFromSheets, enrichPropertiesWithDriveImages } from "@/lib/google";
 import { PROPERTIES } from "@/lib/properties";
-import { ChatMessage } from "@/lib/types";
+import { ChatMessage, Property } from "@/lib/types";
 
-const SYSTEM_PROMPT = `You are a real estate agent at Circa Panama. Talk like a real person - casual, warm, but professional. Keep it short. No corporate fluff.
+let cachedProperties: Property[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000;
 
-Here are the properties you can show:
+async function getProperties(): Promise<Property[]> {
+  const now = Date.now();
+  if (cachedProperties && now - cacheTimestamp < CACHE_TTL) {
+    return cachedProperties;
+  }
 
-${JSON.stringify(PROPERTIES, null, 2)}
+  const sheets = await fetchPropertiesFromSheets();
+  const props = sheets || PROPERTIES;
+  const enriched = await enrichPropertiesWithDriveImages(props);
 
-How to talk to customers:
-- Be direct. If someone asks "what do you have under 600K?" just show them what fits. No long intros.
-- Keep responses short - 2-4 sentences per property recommendation, not essays.
-- Ask follow-up questions naturally: "Are you looking for something near the beach or more up in the mountains?"
-- When you recommend properties, highlight what makes each one special in plain language.
-- Max 2-3 properties per message. Don't overwhelm them.
+  cachedProperties = enriched;
+  cacheTimestamp = now;
+  return enriched;
+}
+
+function buildSystemPrompt(properties: Property[]): string {
+  return `You are an assistant for the Circa Panama real estate team. You help the team find the right properties to recommend to their buyer clients and prepare presentations.
+
+Here is the full property inventory:
+
+${JSON.stringify(properties, null, 2)}
+
+How to help:
+- Be direct and concise. When asked about properties, list the ones that match with key details.
 - Prices are in USD.
-
-About generating presentations:
-- ONLY after you've had a real conversation and recommended properties that the customer seems interested in, offer to put together a presentation for them.
-- Say something natural like "Want me to put together a quick presentation with these properties so you can share it with your partner/review later?"
-- If they say yes, ask for their name.
-- ONLY after they confirm YES to a presentation AND give you their name, include this at the very end of your message:
-  |||GENERATE_PPTX|||{"customerName": "Their Name", "propertyNames": ["Property1", "Property2"]}|||END_PPTX|||
-- NEVER include the GENERATE_PPTX block unless the customer has explicitly said yes to getting a presentation. A customer asking a question or saying "sounds good" about a property is NOT a request for a presentation.`;
+- Respond in English or Spanish depending on how the user writes.
+- You know all property details - prices, sizes, amenities, locations, developer info, ROI projections.
+- When comparing properties, use a clear format showing the key differences.
+- For projects with unitTypes (like Surf Lodge Residence), break down by unit type with sizes and price ranges.
+- Mention ROI estimates, rental projections, and market pricing when relevant.
+- Suggest which properties might work well together in a presentation based on the client's needs.
+- Keep answers practical and useful - this is an internal tool, not a sales pitch.`;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { messages } = (await request.json()) as { messages: ChatMessage[] };
 
+    const properties = await getProperties();
+    const systemPrompt = buildSystemPrompt(properties);
+
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
-    const response = await groq.chat.completions.create({
+    const stream = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       max_tokens: 1024,
+      stream: true,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
@@ -43,12 +64,36 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    const content = response.choices[0]?.message?.content ?? "";
+    const encoder = new TextEncoder();
 
-    return NextResponse.json({ content });
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content;
+            if (content) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+            }
+          }
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        } catch (error) {
+          console.error("Stream error:", error);
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error: unknown) {
     console.error("Chat API error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return Response.json({ error: message }, { status: 500 });
   }
 }
