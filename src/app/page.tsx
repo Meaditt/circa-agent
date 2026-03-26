@@ -86,8 +86,11 @@ export default function Home() {
       if (!res.ok) throw new Error("Generation failed");
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
       const fileName = `Circa_${clientName.trim().replace(/\s+/g, "_")}_Presentation.pptx`;
+      const file = new File([blob], fileName, {
+        type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      });
+      const url = URL.createObjectURL(file);
 
       setDownload({ url, fileName });
     } catch {
@@ -102,8 +105,13 @@ export default function Home() {
     const a = document.createElement("a");
     a.href = download.url;
     a.download = download.fileName;
+    a.style.display = "none";
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(download.url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(download.url);
+    }, 100);
     setDownload(null);
   }
 
@@ -171,7 +179,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--circa-darker)]">
       {/* Top Bar */}
-      <header className="sticky top-0 z-50 bg-[var(--circa-darker)]/95 backdrop-blur-sm border-b border-[var(--circa-border)]">
+      <header className="sticky top-0 z-50 bg-[var(--circa-darker)]/90 backdrop-blur-md border-b border-[var(--circa-border)]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full border border-[var(--circa-border-active)] flex items-center justify-center">
@@ -477,11 +485,31 @@ function PropertyCard({
       {/* Image */}
       <div className="relative h-40 overflow-hidden">
         {property.imageUrl ? (
-          <img src={property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
+          <img
+            src={property.imageUrl}
+            alt={property.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const fallbacks = [
+                "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800&h=500&fit=crop",
+                "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&h=500&fit=crop",
+              ];
+              const idx = property.name.split("").reduce((a, c) => a + c.charCodeAt(0), 0) % fallbacks.length;
+              (e.target as HTMLImageElement).src = fallbacks[idx];
+            }}
+          />
         ) : (
-          <div className="w-full h-full bg-[var(--circa-darker)] flex items-center justify-center">
-            <span className="text-[var(--circa-text-dim)] text-[12px]">No image</span>
-          </div>
+          <img
+            src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=500&fit=crop"
+            alt={property.name}
+            className="w-full h-full object-cover"
+          />
         )}
 
         {/* Selection indicator */}

@@ -1,26 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 @import "tailwindcss";
 
 :root {
-  --circa-gold: #c8a96e;
-  --circa-gold-light: #dbc292;
-  --circa-gold-dim: #9a8255;
-  --circa-dark: #131320;
-  --circa-darker: #0a0a14;
-  --circa-surface: #181830;
-  --circa-surface-hover: #1f1f3d;
-  --circa-border: rgba(200, 169, 110, 0.12);
-  --circa-border-active: rgba(200, 169, 110, 0.3);
-  --circa-text: #e8e4dc;
-  --circa-text-muted: #8a8698;
-  --circa-text-dim: #5c586a;
-  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --circa-gold: #2563EB;
+  --circa-gold-light: #3B82F6;
+  --circa-gold-dim: #1D4ED8;
+  --circa-dark: #FFFFFF;
+  --circa-darker: #F1F5F9;
+  --circa-surface: #FFFFFF;
+  --circa-surface-hover: #E2E8F0;
+  --circa-border: rgba(30, 41, 59, 0.12);
+  --circa-border-active: rgba(37, 99, 235, 0.3);
+  --circa-text: #1E293B;
+  --circa-text-muted: #64748B;
+  --circa-text-dim: #94A3B8;
+  --font-display: 'DM Serif Display', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--circa-gold-dim) transparent;
+  scrollbar-color: var(--circa-text-dim) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -32,7 +32,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--circa-gold-dim);
+  background: var(--circa-text-dim);
   border-radius: 4px;
 }
 
@@ -44,24 +44,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Grain overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* Ambient glow behind chat */
 .ambient-glow {
   position: fixed;
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 169, 110, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -168,7 +157,7 @@ body::before {
 
 /* Input glow on focus */
 .input-glow:focus {
-  box-shadow: 0 0 0 1px var(--circa-gold-dim), 0 0 20px rgba(200, 169, 110, 0.08);
+  box-shadow: 0 0 0 1px var(--circa-gold-dim), 0 0 20px rgba(37, 99, 235, 0.08);
 }
 
 /* Suggestion chip hover */
@@ -179,7 +168,7 @@ body::before {
 .chip-hover:hover {
   border-color: var(--circa-gold);
   color: var(--circa-gold);
-  background: rgba(200, 169, 110, 0.06);
+  background: rgba(37, 99, 235, 0.06);
   transform: translateY(-1px);
 }
 
@@ -190,7 +179,7 @@ body::before {
     90deg,
     transparent 0%,
     var(--circa-border-active) 20%,
-    var(--circa-gold-dim) 50%,
+    var(--circa-gold) 50%,
     var(--circa-border-active) 80%,
     transparent 100%
   );
