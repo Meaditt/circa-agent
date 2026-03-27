@@ -1,0 +1,11 @@
+﻿property name,price,price per sqm,bedrooms,ROI estimate,rental income potential,investment rating (1-5 stars),Source
+Surf Lodge Residence (2 Bedrooms),"$261,000","$3,000",2,11.8% (7-9% net yield based on early bird pricing),"2,925/month (35,100/year)",5 stars,[1]
+Surf Lodge Residence (3 Bedrooms),"$369,000","$3,000",3,11.5% (7-9% net yield based on early bird pricing),"3,900/month (46,800/year)",5 stars,[1]
+Surf Lodge Residence (Studio),"$189,000","$3,000",0 (Studio),11.2% (7-9% net yield based on early bird pricing),"1,950/month (23,400/year)",5 stars,[1]
+Condo B11,"$365,000","$2,896.83",2,"7.6% (gross yield, currently rented)","2,300/month (27,600/year)",4 stars,[1]
+Duplex 47 B,"$750,000","$2,659.57",3,Not in source,Not in source,4 stars,[1]
+Rio Venao 2BR,"$320,000","$3,200.00",2,Not in source,Not in source,4 stars,[1]
+Casa Valley,"$550,000","$1,964.29",3,Not in source (High appreciation potential due to low price/sqm),Not in source,4 stars,[1]
+Villa Brisa,"$900,000","$3,308.82",3,Not in source,Not in source,3 stars,[1]
+Casa Ceviche,"$725,000","$4,531.25",3,Not in source,Not in source,3 stars,[1]
+Villa 20,"$585,000","$5,318.18",2,Not in source (Premium pricing),Not in source,2 stars,[1]

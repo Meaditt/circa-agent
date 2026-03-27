@@ -1086,6 +1086,342 @@ export async function generatePresentation(
   }
 
   // ============================================================
+  // MARKET ANALYSIS SLIDES
+  // ============================================================
+
+  // -- SLIDE: Price Comparison Bar Chart --
+  const propsWithPrice = properties.filter((p) => p.price && parseFloat(p.price.replace(/,/g, "")) > 0);
+  if (propsWithPrice.length > 1) {
+    const priceChartSlide = pptx.addSlide();
+    addSlideBackground(priceChartSlide);
+    addSectionTitle(priceChartSlide, "Price Comparison", 0.4, "Selected properties side by side");
+    addDecorativeLine(priceChartSlide, MARGIN, 1.25, 1.5);
+
+    const priceData = [
+      {
+        name: "Price (USD)",
+        labels: propsWithPrice.map((p) => p.name.length > 18 ? p.name.substring(0, 16) + "..." : p.name),
+        values: propsWithPrice.map((p) => parseFloat(p.price.replace(/,/g, ""))),
+      },
+    ];
+
+    priceChartSlide.addChart("bar" as PptxGenJS.CHART_NAME, priceData, {
+      x: MARGIN,
+      y: 1.5,
+      w: CONTENT_W,
+      h: 4.8,
+      barDir: "col",
+      barGrouping: "clustered",
+      chartColors: [COLORS.gold],
+      showValue: true,
+      dataLabelFontSize: 9,
+      dataLabelColor: COLORS.white,
+      catAxisLabelColor: COLORS.textSecondary,
+      catAxisLabelFontSize: 9,
+      catAxisLabelRotate: propsWithPrice.length > 6 ? 45 : 0,
+      valAxisLabelColor: COLORS.textMuted,
+      valAxisLabelFontSize: 8,
+      valAxisLabelFormatCode: "$#,##0",
+      showLegend: false,
+      plotArea: { fill: { color: COLORS.surface } },
+    });
+
+    addFooter(priceChartSlide);
+  }
+
+  // -- SLIDE: Price per m2 Value Analysis --
+  const propsWithSqm = properties.filter(
+    (p) => p.price && p.constructionSize && parseFloat(p.price.replace(/,/g, "")) > 0 && parseFloat(p.constructionSize) > 0
+  );
+  if (propsWithSqm.length > 1) {
+    const sqmSlide = pptx.addSlide();
+    addSlideBackground(sqmSlide);
+    addSectionTitle(sqmSlide, "Value Analysis", 0.4, "Price per m\u00B2 - lower means better value");
+    addDecorativeLine(sqmSlide, MARGIN, 1.25, 1.5);
+
+    const sqmValues = propsWithSqm.map((p) => {
+      const price = parseFloat(p.price.replace(/,/g, ""));
+      const size = parseFloat(p.constructionSize);
+      return Math.round(price / size);
+    });
+
+    const avgSqm = Math.round(sqmValues.reduce((a, b) => a + b, 0) / sqmValues.length);
+
+    const sqmData = [
+      {
+        name: "Price/m\u00B2",
+        labels: propsWithSqm.map((p) => p.name.length > 18 ? p.name.substring(0, 16) + "..." : p.name),
+        values: sqmValues,
+      },
+      {
+        name: "Market Average",
+        labels: propsWithSqm.map((p) => p.name.length > 18 ? p.name.substring(0, 16) + "..." : p.name),
+        values: propsWithSqm.map(() => avgSqm),
+      },
+    ];
+
+    sqmSlide.addChart("bar" as PptxGenJS.CHART_NAME, sqmData, {
+      x: MARGIN,
+      y: 1.5,
+      w: CONTENT_W,
+      h: 4.8,
+      barDir: "col",
+      barGrouping: "clustered",
+      chartColors: [COLORS.gold, COLORS.textDim],
+      showValue: true,
+      dataLabelFontSize: 8,
+      dataLabelColor: COLORS.white,
+      catAxisLabelColor: COLORS.textSecondary,
+      catAxisLabelFontSize: 9,
+      catAxisLabelRotate: propsWithSqm.length > 6 ? 45 : 0,
+      valAxisLabelColor: COLORS.textMuted,
+      valAxisLabelFontSize: 8,
+      valAxisLabelFormatCode: "$#,##0",
+      showLegend: true,
+      legendPos: "t",
+      legendColor: COLORS.textSecondary,
+      legendFontSize: 9,
+      plotArea: { fill: { color: COLORS.surface } },
+    });
+
+    addFooter(sqmSlide);
+  }
+
+  // -- SLIDE: Property Mix Doughnut + Key Stats --
+  if (properties.length > 1) {
+    const mixSlide = pptx.addSlide();
+    addSlideBackground(mixSlide);
+    addSectionTitle(mixSlide, "Market Insights", 0.4, "Portfolio breakdown and key investment metrics");
+    addDecorativeLine(mixSlide, MARGIN, 1.25, 1.5);
+
+    // Category breakdown doughnut
+    const catCounts = new Map<string, number>();
+    for (const p of properties) {
+      catCounts.set(p.category, (catCounts.get(p.category) || 0) + 1);
+    }
+
+    const doughnutColors = ["2563EB", "3B82F6", "60A5FA", "93C5FD", "1D4ED8", "1E40AF", "BFDBFE"];
+    const doughnutData = [
+      {
+        name: "Categories",
+        labels: Array.from(catCounts.keys()),
+        values: Array.from(catCounts.values()),
+      },
+    ];
+
+    mixSlide.addChart("doughnut" as PptxGenJS.CHART_NAME, doughnutData, {
+      x: MARGIN,
+      y: 1.6,
+      w: 5.5,
+      h: 4.5,
+      holeSize: 55,
+      chartColors: doughnutColors.slice(0, catCounts.size),
+      showPercent: true,
+      showLabel: true,
+      showLegend: true,
+      legendPos: "b",
+      legendColor: COLORS.textSecondary,
+      legendFontSize: 9,
+      dataLabelColor: COLORS.white,
+      dataLabelFontSize: 10,
+    });
+
+    // Key stats cards on the right
+    const statsX = 7.2;
+    const statsW = CONTENT_W - statsX + MARGIN;
+
+    const prices = properties
+      .filter((p) => p.price && parseFloat(p.price.replace(/,/g, "")) > 0)
+      .map((p) => parseFloat(p.price.replace(/,/g, "")));
+
+    const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+    const statItems = [
+      { label: "PROPERTIES", value: `${properties.length}`, sub: "in this selection" },
+      { label: "AVG. PRICE", value: `$${avgPrice.toLocaleString()}`, sub: "across selection" },
+      { label: "PRICE RANGE", value: `$${(minPrice / 1000).toFixed(0)}K - $${(maxPrice / 1000).toFixed(0)}K`, sub: "min to max" },
+      { label: "LOCATIONS", value: `${new Set(properties.map((p) => p.location)).size}`, sub: "unique areas" },
+    ];
+
+    for (let i = 0; i < statItems.length; i++) {
+      const sy = 1.7 + i * 1.15;
+      addCard(mixSlide, statsX, sy, statsW, 1.0, COLORS.surface);
+
+      // Blue accent bar
+      mixSlide.addShape("rect" as PptxGenJS.ShapeType, {
+        x: statsX,
+        y: sy,
+        w: 0.04,
+        h: 1.0,
+        fill: { color: COLORS.gold },
+      });
+
+      mixSlide.addText(statItems[i].label, {
+        x: statsX + 0.2,
+        y: sy + 0.1,
+        w: statsW - 0.3,
+        h: 0.2,
+        fontSize: 8,
+        fontFace: FONTS.body,
+        color: COLORS.textMuted,
+        charSpacing: 2,
+      });
+
+      mixSlide.addText(statItems[i].value, {
+        x: statsX + 0.2,
+        y: sy + 0.3,
+        w: statsW - 0.3,
+        h: 0.4,
+        fontSize: 22,
+        fontFace: FONTS.display,
+        color: COLORS.gold,
+        bold: true,
+      });
+
+      mixSlide.addText(statItems[i].sub, {
+        x: statsX + 0.2,
+        y: sy + 0.7,
+        w: statsW - 0.3,
+        h: 0.2,
+        fontSize: 9,
+        fontFace: FONTS.body,
+        color: COLORS.textDim,
+      });
+    }
+
+    addFooter(mixSlide);
+  }
+
+  // -- SLIDE: ROI & Rental Analysis (if any property has rental data) --
+  const propsWithRentals = properties.filter((p) => p.rentalProjections && p.rentalProjections.length > 0);
+  if (propsWithRentals.length > 0) {
+    const rentalSlide = pptx.addSlide();
+    addSlideBackground(rentalSlide);
+    addSectionTitle(rentalSlide, "Investment Returns", 0.4, "Projected annual rental revenue by unit type");
+    addDecorativeLine(rentalSlide, MARGIN, 1.25, 1.5);
+
+    const allProjections = propsWithRentals.flatMap((p) =>
+      (p.rentalProjections || []).map((r) => ({ ...r, property: p.name }))
+    );
+
+    const rentalData = [
+      {
+        name: "Monthly Rent",
+        labels: allProjections.map((r) => r.unitType),
+        values: allProjections.map((r) => r.monthlyRent),
+      },
+    ];
+
+    rentalSlide.addChart("bar" as PptxGenJS.CHART_NAME, rentalData, {
+      x: MARGIN,
+      y: 1.5,
+      w: 7,
+      h: 4.8,
+      barDir: "bar",
+      barGrouping: "clustered",
+      chartColors: [COLORS.gold],
+      showValue: true,
+      dataLabelFontSize: 10,
+      dataLabelColor: COLORS.white,
+      valAxisLabelFormatCode: "$#,##0",
+      catAxisLabelColor: COLORS.textSecondary,
+      catAxisLabelFontSize: 10,
+      valAxisLabelColor: COLORS.textMuted,
+      valAxisLabelFontSize: 8,
+      showLegend: false,
+      plotArea: { fill: { color: COLORS.surface } },
+    });
+
+    // ROI highlight on the right
+    const roiProps = properties.filter((p) => p.roiEstimate);
+    if (roiProps.length > 0) {
+      const roiX = 8.5;
+      const roiW = CONTENT_W - roiX + MARGIN;
+      addCard(rentalSlide, roiX, 1.8, roiW, 2.0, COLORS.surface);
+
+      rentalSlide.addShape("rect" as PptxGenJS.ShapeType, {
+        x: roiX,
+        y: 1.8,
+        w: roiW,
+        h: 0.04,
+        fill: { color: COLORS.gold },
+      });
+
+      rentalSlide.addText("PROJECTED ROI", {
+        x: roiX + 0.2,
+        y: 2.0,
+        w: roiW - 0.4,
+        h: 0.25,
+        fontSize: 9,
+        fontFace: FONTS.body,
+        color: COLORS.textMuted,
+        charSpacing: 2,
+      });
+
+      rentalSlide.addText(roiProps[0].roiEstimate || "", {
+        x: roiX + 0.2,
+        y: 2.3,
+        w: roiW - 0.4,
+        h: 0.6,
+        fontSize: 32,
+        fontFace: FONTS.display,
+        color: COLORS.gold,
+        bold: true,
+      });
+
+      rentalSlide.addText("Net Annual Yield", {
+        x: roiX + 0.2,
+        y: 2.9,
+        w: roiW - 0.4,
+        h: 0.25,
+        fontSize: 10,
+        fontFace: FONTS.body,
+        color: COLORS.textSecondary,
+      });
+
+      // Annual revenue summary
+      const totalAnnual = allProjections.reduce((sum, r) => sum + r.monthlyRent * 12, 0);
+      addCard(rentalSlide, roiX, 4.2, roiW, 1.5, COLORS.surface);
+
+      rentalSlide.addText("ANNUAL REVENUE", {
+        x: roiX + 0.2,
+        y: 4.35,
+        w: roiW - 0.4,
+        h: 0.2,
+        fontSize: 8,
+        fontFace: FONTS.body,
+        color: COLORS.textMuted,
+        charSpacing: 2,
+      });
+
+      rentalSlide.addText(`$${totalAnnual.toLocaleString()}`, {
+        x: roiX + 0.2,
+        y: 4.6,
+        w: roiW - 0.4,
+        h: 0.5,
+        fontSize: 24,
+        fontFace: FONTS.display,
+        color: COLORS.gold,
+        bold: true,
+      });
+
+      rentalSlide.addText("Combined projections\nbefore management fees", {
+        x: roiX + 0.2,
+        y: 5.1,
+        w: roiW - 0.4,
+        h: 0.4,
+        fontSize: 9,
+        fontFace: FONTS.body,
+        color: COLORS.textDim,
+      });
+    }
+
+    addFooter(rentalSlide);
+  }
+
+  // ============================================================
   // FINAL SLIDE - CONTACT
   // ============================================================
   const contactSlide = pptx.addSlide();
